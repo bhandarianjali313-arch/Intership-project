@@ -1,6 +1,5 @@
 from pathlib import Path
 import json
-import pandas as pd
 
 
 # -------------------------------------------------------
@@ -11,16 +10,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 DATA_DIR = PROJECT_ROOT / "data"
 
-JSON_PATH = DATA_DIR / "CUAD_v1.json"
-MASTER_CLAUSES_PATH = DATA_DIR / "master_clauses.csv"
-
-TXT_DIR = DATA_DIR / "full_contract_txt"
-PDF_DIR = DATA_DIR / "full_contract_pdf"
-LABEL_DIR = DATA_DIR / "label_group_xlsx"
+CUAD_JSON = DATA_DIR / "CUADv1.json"
+TRAIN_JSON = DATA_DIR / "train_separate_questions.json"
+TEST_JSON = DATA_DIR / "test.json"
 
 
 # -------------------------------------------------------
-# Utility functions
+# Utility
 # -------------------------------------------------------
 
 def print_header(title: str) -> None:
@@ -29,172 +25,253 @@ def print_header(title: str) -> None:
     print("=" * 80)
 
 
+def load_json(path: Path):
+    """Load a JSON file safely."""
+
+    if not path.exists():
+        print(f"File not found: {path}")
+        return None
+
+    with open(path, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+# -------------------------------------------------------
+# Path check
+# -------------------------------------------------------
+
 def check_paths() -> None:
     print_header("DATASET PATH CHECK")
 
     paths = {
         "Data directory": DATA_DIR,
-        "CUAD JSON": JSON_PATH,
-        "Master clauses CSV": MASTER_CLAUSES_PATH,
-        "TXT contracts": TXT_DIR,
-        "PDF contracts": PDF_DIR,
-        "Label XLSX": LABEL_DIR,
+        "CUADv1.json": CUAD_JSON,
+        "Train dataset": TRAIN_JSON,
+        "Test dataset": TEST_JSON,
     }
 
     for name, path in paths.items():
         status = "FOUND" if path.exists() else "MISSING"
+
         print(f"{name:<25}: {status}")
         print(f"  {path}")
 
 
-def count_files() -> None:
-    print_header("CONTRACT FILE COUNTS")
+# -------------------------------------------------------
+# Generic JSON inspection
+# -------------------------------------------------------
 
-    txt_files = list(TXT_DIR.glob("*.txt")) if TXT_DIR.exists() else []
-    pdf_files = list(PDF_DIR.glob("*.pdf")) if PDF_DIR.exists() else []
-    xlsx_files = list(LABEL_DIR.glob("*.xlsx")) if LABEL_DIR.exists() else []
+def inspect_json_file(path: Path, name: str) -> None:
 
-    print(f"TXT contracts   : {len(txt_files)}")
-    print(f"PDF contracts   : {len(pdf_files)}")
-    print(f"XLSX label files: {len(xlsx_files)}")
+    print_header(f"{name} INSPECTION")
 
+    data = load_json(path)
 
-def inspect_master_clauses() -> None:
-    print_header("MASTER CLAUSES CSV")
-
-    if not MASTER_CLAUSES_PATH.exists():
-        print("master_clauses.csv not found.")
+    if data is None:
         return
 
-    df = pd.read_csv(MASTER_CLAUSES_PATH)
-
-    print(f"Shape: {df.shape}")
-
-    print("\nColumns:")
-    for column in df.columns:
-        print(f" - {column}")
-
-    print("\nFirst 5 rows:")
-    print(df.head().to_string())
-
-    print("\nMissing values:")
-    print(df.isnull().sum())
-
-
-def inspect_json() -> None:
-    print_header("CUAD JSON STRUCTURE")
-
-    if not JSON_PATH.exists():
-        print("CUAD_v1.json not found.")
-        return
-
-    with open(JSON_PATH, "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    print(f"Top-level Python type: {type(data).__name__}")
+    print(f"Python type: {type(data).__name__}")
 
     if isinstance(data, dict):
 
         print("\nTop-level keys:")
+
         for key in data.keys():
             print(f" - {key}")
 
         if "data" in data:
-            print(f"\nNumber of documents: {len(data['data'])}")
 
-            if data["data"]:
-                first_document = data["data"][0]
+            documents = data["data"]
+
+            print(f"\nDocuments: {len(documents)}")
+
+            if documents:
+
+                first_document = documents[0]
 
                 print("\nFirst document keys:")
+
                 for key in first_document.keys():
                     print(f" - {key}")
 
+    elif isinstance(data, list):
 
-def inspect_first_contract() -> None:
-    print_header("SAMPLE CONTRACT")
+        print(f"\nNumber of records: {len(data)}")
 
-    if not TXT_DIR.exists():
-        print("TXT contract directory not found.")
+        if data:
+
+            first_record = data[0]
+
+            print("\nFirst record type:")
+            print(type(first_record).__name__)
+
+            if isinstance(first_record, dict):
+
+                print("\nFirst record keys:")
+
+                for key in first_record.keys():
+                    print(f" - {key}")
+
+
+# -------------------------------------------------------
+# CUAD detailed inspection
+# -------------------------------------------------------
+
+def inspect_cuad_structure() -> None:
+
+    print_header("CUAD DETAILED STRUCTURE")
+
+    data = load_json(CUAD_JSON)
+
+    if data is None:
         return
-
-    txt_files = list(TXT_DIR.glob("*.txt"))
-
-    if not txt_files:
-        print("No TXT contracts found.")
-        return
-
-    contract_path = txt_files[0]
-
-    text = contract_path.read_text(
-        encoding="utf-8",
-        errors="ignore"
-    )
-
-    print(f"Contract name : {contract_path.name}")
-    print(f"Characters    : {len(text):,}")
-    print(f"Words         : {len(text.split()):,}")
-
-    print("\nFirst 1200 characters:\n")
-
-    print(text[:1200])
-
-def inspect_first_annotation() -> None:
-    print_header("FIRST CUAD ANNOTATION")
-
-    if not JSON_PATH.exists():
-        return
-
-    with open(JSON_PATH, "r", encoding="utf-8") as file:
-        data = json.load(file)
 
     documents = data.get("data", [])
 
+    print(f"Total documents: {len(documents)}")
+
     if not documents:
-        print("No documents found.")
         return
 
-    first_document = documents[0]
+    document = documents[0]
 
-    print("Document title:")
-    print(first_document.get("title"))
+    print("\nFirst contract title:")
+    print(document.get("title"))
 
-    paragraphs = first_document.get("paragraphs", [])
+    paragraphs = document.get("paragraphs", [])
 
-    print(f"\nParagraph count: {len(paragraphs)}")
+    print(f"\nParagraph groups: {len(paragraphs)}")
 
     if not paragraphs:
         return
 
-    first_paragraph = paragraphs[0]
+    paragraph = paragraphs[0]
 
-    context = first_paragraph.get("context", "")
+    print("\nParagraph keys:")
 
-    print(f"\nContext length: {len(context):,} characters")
+    for key in paragraph.keys():
+        print(f" - {key}")
 
-    questions = first_paragraph.get("qas", [])
+    context = paragraph.get("context", "")
 
-    print(f"Questions / clause labels: {len(questions)}")
+    print(f"\nContract text length: {len(context):,} characters")
+    print(f"Approximate words: {len(context.split()):,}")
 
-    if not questions:
+    print("\nFirst 500 characters of contract:")
+    print("-" * 80)
+    print(context[:500])
+
+
+# -------------------------------------------------------
+# Annotation inspection
+# -------------------------------------------------------
+
+def inspect_annotations() -> None:
+
+    print_header("CUAD ANNOTATION EXAMPLE")
+
+    data = load_json(CUAD_JSON)
+
+    if data is None:
         return
 
-    first_question = questions[0]
+    documents = data.get("data", [])
 
-    print("\nFirst question:")
-    print(first_question.get("question"))
+    if not documents:
+        return
 
-    print("\nAnswers:")
+    paragraphs = documents[0].get("paragraphs", [])
 
-    answers = first_question.get("answers", [])
+    if not paragraphs:
+        return
 
-    if not answers:
-        print("No answer present.")
-    else:
-        for answer in answers[:3]:
-            print(
-                f"Text: {answer.get('text')}\n"
-                f"Start position: {answer.get('answer_start')}\n"
-            )
+    qas = paragraphs[0].get("qas", [])
+
+    print(f"Questions / clause categories: {len(qas)}")
+
+    if not qas:
+        return
+
+    qa = qas[0]
+
+    print("\nAnnotation keys:")
+
+    for key in qa.keys():
+        print(f" - {key}")
+
+    print("\nQuestion / clause:")
+    print(qa.get("question"))
+
+    print("\nID:")
+    print(qa.get("id"))
+
+    answers = qa.get("answers", [])
+
+    print(f"\nNumber of answers: {len(answers)}")
+
+    if answers:
+
+        for index, answer in enumerate(answers[:3], start=1):
+
+            print(f"\nAnswer {index}")
+            print("-" * 40)
+
+            print("Text:")
+            print(answer.get("text"))
+
+            print("\nAnswer start:")
+            print(answer.get("answer_start"))
+
+
+# -------------------------------------------------------
+# Count clause categories
+# -------------------------------------------------------
+
+def inspect_clause_categories() -> None:
+
+    print_header("CLAUSE CATEGORY SUMMARY")
+
+    data = load_json(CUAD_JSON)
+
+    if data is None:
+        return
+
+    documents = data.get("data", [])
+
+    questions = set()
+
+    total_questions = 0
+    total_answers = 0
+
+    for document in documents:
+
+        for paragraph in document.get("paragraphs", []):
+
+            for qa in paragraph.get("qas", []):
+
+                question = qa.get("question")
+
+                if question:
+                    questions.add(question)
+
+                total_questions += 1
+
+                total_answers += len(
+                    qa.get("answers", [])
+                )
+
+    print(f"Contracts            : {len(documents)}")
+    print(f"Total QA entries     : {total_questions}")
+    print(f"Unique questions     : {len(questions)}")
+    print(f"Total answer spans   : {total_answers}")
+
+    print("\nFirst 10 unique clause questions:")
+
+    for index, question in enumerate(
+        sorted(questions)[:10],
+        start=1
+    ):
+        print(f"{index}. {question}")
 
 
 # -------------------------------------------------------
@@ -207,15 +284,26 @@ def main() -> None:
 
     check_paths()
 
-    count_files()
+    inspect_json_file(
+        CUAD_JSON,
+        "CUADv1.json"
+    )
 
-    inspect_master_clauses()
+    inspect_json_file(
+        TRAIN_JSON,
+        "train_separate_questions.json"
+    )
 
-    inspect_json()
+    inspect_json_file(
+        TEST_JSON,
+        "test.json"
+    )
 
-    inspect_first_contract()
+    inspect_cuad_structure()
 
-    inspect_first_annotation()
+    inspect_annotations()
+
+    inspect_clause_categories()
 
 
 if __name__ == "__main__":

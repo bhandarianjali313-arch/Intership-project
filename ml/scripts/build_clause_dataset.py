@@ -45,17 +45,20 @@ def validate_dataset(df: pd.DataFrame) -> None:
     print_header("DATASET VALIDATION")
 
     required_columns = [
-        "contract_id",
-        "contract_title",
-        "paragraph_id",
-        "qa_id",
-        "clause_type",
-        "clause_text",
-        "answer_start",
-        "answer_end",
-        "has_answer",
-        "context_length",
-    ]
+    "contract_id",
+    "contract_title",
+    "paragraph_id",
+    "qa_id",
+    "question",
+    "clause_name",
+    "clause_label",
+    "clause_text",
+    "answer_start",
+    "answer_end",
+    "has_answer",
+    "span_valid",
+    "context_length",
+]
 
     missing_columns = [
         column
@@ -100,7 +103,7 @@ def print_statistics(df: pd.DataFrame) -> None:
 
     print(
         f"Unique clause types  : "
-        f"{df['clause_type'].nunique():,}"
+        f"{df["clause_label"].nunique():,}"
     )
 
     positive = int(

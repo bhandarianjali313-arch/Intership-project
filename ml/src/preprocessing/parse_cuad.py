@@ -1,4 +1,5 @@
 from __future__ import annotations
+from ml.src.preprocessing.label_utils import get_normalized_label
 
 import json
 from pathlib import Path
@@ -76,7 +77,9 @@ def create_record(
     question = clean_question(
         qa.get("question", "")
     )
-
+    clause_name, clause_label = get_normalized_label(
+    question
+    )
     qa_id = qa.get(
         "id",
         ""
@@ -123,19 +126,22 @@ def create_record(
             answer_start=answer_start,
         )
 
+   
     return {
-        "contract_id": contract_index,
-        "contract_title": contract_title,
-        "paragraph_id": paragraph_index,
-        "qa_id": qa_id,
-        "clause_type": question,
-        "clause_text": answer_text,
-        "answer_start": answer_start,
-        "answer_end": answer_end,
-        "has_answer": has_answer,
-        "span_valid": span_valid,
-        "context_length": len(context),
-    }
+    "contract_id": contract_index,
+    "contract_title": contract_title,
+    "paragraph_id": paragraph_index,
+    "qa_id": qa_id,
+    "question": question,
+    "clause_name": clause_name,
+    "clause_label": clause_label,
+    "clause_text": answer_text,
+    "answer_start": answer_start,
+    "answer_end": answer_end,
+    "has_answer": has_answer,
+    "span_valid": span_valid,
+    "context_length": len(context),
+}
 
 
 def parse_cuad(

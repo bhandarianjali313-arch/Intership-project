@@ -12,7 +12,12 @@ __pycache__/
 .env
 
 # Raw CUAD dataset
-data/cuad/data/
+data/CUADv1.json
+data/test.json
+data/train_separate_questions.json
+
+# Generated processed datasets
+data/processed/
 
 # Model artifacts
 models/

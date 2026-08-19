@@ -29,18 +29,21 @@ def save_jsonl(records, path: Path) -> None:
     """
 
     with path.open("w", encoding="utf-8") as file:
-
         for record in records:
             file.write(
                 json.dumps(
                     record,
-                    ensure_ascii=False
+                    ensure_ascii=False,
                 )
                 + "\n"
             )
 
 
 def validate_dataset(df: pd.DataFrame) -> None:
+    """
+    Validate the structure and answer spans
+    of the processed CUAD dataset.
+    """
 
     print_header("DATASET VALIDATION")
 
@@ -49,11 +52,14 @@ def validate_dataset(df: pd.DataFrame) -> None:
         "contract_title",
         "paragraph_id",
         "qa_id",
-        "clause_type",
+        "question",
+        "clause_name",
+        "clause_label",
         "clause_text",
         "answer_start",
         "answer_end",
         "has_answer",
+        "span_valid",
         "context_length",
     ]
 
@@ -64,7 +70,6 @@ def validate_dataset(df: pd.DataFrame) -> None:
     ]
 
     if missing_columns:
-
         raise ValueError(
             f"Missing columns: {missing_columns}"
         )
@@ -83,15 +88,44 @@ def validate_dataset(df: pd.DataFrame) -> None:
 
     print(
         f"Invalid positive answer spans: "
-        f"{len(invalid_spans)}"
+        f"{len(invalid_spans):,}"
+    )
+
+    positive_df = df[
+        df["has_answer"] == True
+    ]
+
+    valid_text_spans = int(
+        positive_df["span_valid"].sum()
+    )
+
+    invalid_text_spans = (
+        len(positive_df)
+        - valid_text_spans
+    )
+
+    print(
+        f"Valid text spans             : "
+        f"{valid_text_spans:,}"
+    )
+
+    print(
+        f"Invalid text spans           : "
+        f"{invalid_text_spans:,}"
     )
 
 
 def print_statistics(df: pd.DataFrame) -> None:
+    """
+    Print basic statistics about the flattened CUAD dataset.
+    """
 
     print_header("CUAD FLAT DATASET STATISTICS")
 
-    print(f"Total records        : {len(df):,}")
+    print(
+        f"Total records        : "
+        f"{len(df):,}"
+    )
 
     print(
         f"Contracts            : "
@@ -100,20 +134,29 @@ def print_statistics(df: pd.DataFrame) -> None:
 
     print(
         f"Unique clause types  : "
-        f"{df['clause_type'].nunique():,}"
+        f"{df['clause_label'].nunique():,}"
     )
 
     positive = int(
         df["has_answer"].sum()
     )
 
-    negative = len(df) - positive
+    negative = (
+        len(df)
+        - positive
+    )
 
-    print(f"Positive examples    : {positive:,}")
-    print(f"Negative examples    : {negative:,}")
+    print(
+        f"Positive examples    : "
+        f"{positive:,}"
+    )
 
-    if len(df):
+    print(
+        f"Negative examples    : "
+        f"{negative:,}"
+    )
 
+    if len(df) > 0:
         positive_percent = (
             positive / len(df)
         ) * 100
@@ -123,10 +166,10 @@ def print_statistics(df: pd.DataFrame) -> None:
             f"{positive_percent:.2f}%"
         )
 
-    print("\nTop 10 clause types:")
+    print("\nTop 10 clause labels:")
 
     print(
-        df["clause_type"]
+        df["clause_label"]
         .value_counts()
         .head(10)
         .to_string()
@@ -134,6 +177,9 @@ def print_statistics(df: pd.DataFrame) -> None:
 
 
 def print_examples(df: pd.DataFrame) -> None:
+    """
+    Print a few positive clause examples.
+    """
 
     print_header("POSITIVE EXAMPLES")
 
@@ -141,16 +187,17 @@ def print_examples(df: pd.DataFrame) -> None:
         df["has_answer"] == True
     ]
 
-    columns = [
-        "contract_title",
-        "clause_type",
-        "clause_text",
-        "answer_start",
-    ]
-
     if positive_df.empty:
         print("No positive examples found.")
         return
+
+    columns = [
+        "contract_title",
+        "clause_name",
+        "clause_label",
+        "clause_text",
+        "answer_start",
+    ]
 
     print(
         positive_df[columns]
@@ -160,20 +207,23 @@ def print_examples(df: pd.DataFrame) -> None:
 
 
 def main() -> None:
+    print_header(
+        "BUILDING CUAD ML DATASET"
+    )
 
-    print_header("BUILDING CUAD ML DATASET")
-
-    print(f"Input:\n{INPUT_PATH}")
+    print(
+        f"Input:\n{INPUT_PATH}"
+    )
 
     if not INPUT_PATH.exists():
-
         raise FileNotFoundError(
-            f"CUAD dataset not found at: {INPUT_PATH}"
+            f"CUAD dataset not found at: "
+            f"{INPUT_PATH}"
         )
 
     OUTPUT_DIR.mkdir(
         parents=True,
-        exist_ok=True
+        exist_ok=True,
     )
 
     records = parse_cuad(
@@ -182,37 +232,54 @@ def main() -> None:
     )
 
     if not records:
-
         raise RuntimeError(
             "Parser returned zero records."
         )
 
-    df = pd.DataFrame(records)
+    df = pd.DataFrame(
+        records
+    )
 
-    validate_dataset(df)
+    validate_dataset(
+        df
+    )
 
-    print_statistics(df)
+    print_statistics(
+        df
+    )
 
-    print_examples(df)
+    print_examples(
+        df
+    )
 
-    print_header("SAVING DATASET")
+    print_header(
+        "SAVING DATASET"
+    )
 
     df.to_csv(
         CSV_OUTPUT,
         index=False,
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
     save_jsonl(
         records,
-        JSONL_OUTPUT
+        JSONL_OUTPUT,
     )
 
-    print(f"CSV saved to:\n{CSV_OUTPUT}")
+    print(
+        f"CSV saved to:\n"
+        f"{CSV_OUTPUT}"
+    )
 
-    print(f"\nJSONL saved to:\n{JSONL_OUTPUT}")
+    print(
+        f"\nJSONL saved to:\n"
+        f"{JSONL_OUTPUT}"
+    )
 
-    print("\nDay 2 dataset build completed successfully.")
+    print(
+        "\nDataset build completed successfully."
+    )
 
 
 if __name__ == "__main__":

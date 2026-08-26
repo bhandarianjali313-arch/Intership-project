@@ -1,0 +1,24 @@
+CLOUD INFRASTRUCTURE VENDOR AGREEMENT (VERSION 1.0 - BASELINE)
+
+This Cloud Services Agreement is entered into on February 10, 2026, by and between Horizon Cloud Services Ltd (Vendor) and Nexus Financial Group LLC (Customer).
+
+1. SERVICES & UPTIME SLA
+Vendor shall provide cloud hosting infrastructure with a guaranteed 99.9% Monthly Uptime Service Level Agreement. Customer receives service credits for downtime exceeding 0.1% per calendar month.
+
+2. PAYMENT TERMS
+Customer shall pay recurring hosting fees of ,000 per month within thirty (30) days of invoice date (Net 30).
+
+3. TERMINATION CLAUSE
+Either party may terminate this Agreement without cause by giving thirty (30) days prior written notice. Customer may terminate immediately upon 5 consecutive days of cloud service unavailability.
+
+4. LIABILITY CAP
+Vendor's total cumulative liability for any and all claims under this Agreement shall not exceed the aggregate fees paid by Customer in the preceding six (6) months, capped at ,000.
+
+5. INTELLECTUAL PROPERTY & DATA OWNERSHIP
+Customer retains 100% exclusive ownership of all uploaded data, databases, and customer records. Vendor obtains no license or rights to Customer data.
+
+6. DATA PRIVACY & SECURITY
+Vendor agrees to maintain ISO 27001 and SOC 2 Type II certifications and comply with GDPR/CCPA data protection mandates.
+
+7. GOVERNING LAW
+Governing law shall be the laws of the State of New York.

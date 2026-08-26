@@ -6,3 +6,8 @@ pytest
 spacy
 scikit-learn
 joblib
+torch
+transformers
+datasets
+accelerate
+scikit-learn

@@ -1,0 +1,23 @@
+﻿services:
+  # Python FastAPI Backend
+  - type: web
+    name: lexiguard-ai-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  # React 19 Frontend Web UI
+  - type: web
+    name: lexiguard-ai-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    rootDir: frontend
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

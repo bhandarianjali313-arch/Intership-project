@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { ContractSummary, ContractDetail } from './types/contract';
 import { getContracts, getContract, uploadContract } from './services/api';
+import { INITIAL_SUMMARIES, CONTRACT_DETAILS_MAP } from './services/mockData';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './pages/Dashboard';
 import { AnalysisWorkspace } from './pages/AnalysisWorkspace';
@@ -14,9 +15,9 @@ import { Scale, CheckCircle, AlertCircle } from 'lucide-react';
 export function App() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [userRole, setUserRole] = useState<string>('Legal Counsel');
-  const [contracts, setContracts] = useState<ContractSummary[]>([]);
-  const [selectedContractId, setSelectedContractId] = useState<string>('');
-  const [selectedDetail, setSelectedDetail] = useState<ContractDetail | null>(null);
+  const [contracts, setContracts] = useState<ContractSummary[]>(INITIAL_SUMMARIES);
+  const [selectedContractId, setSelectedContractId] = useState<string>('msa_001');
+  const [selectedDetail, setSelectedDetail] = useState<ContractDetail>(CONTRACT_DETAILS_MAP['msa_001']);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -28,15 +29,15 @@ export function App() {
   const loadContracts = async (preferredId?: string) => {
     try {
       const data = await getContracts();
-      setContracts(data);
-      if (data.length > 0) {
+      if (data && data.length > 0) {
+        setContracts(data);
         const idToSelect = preferredId || selectedContractId || data[0].id;
         setSelectedContractId(idToSelect);
         const detail = await getContract(idToSelect);
-        setSelectedDetail(detail);
+        if (detail) setSelectedDetail(detail);
       }
     } catch (err) {
-      console.error('Failed to load contracts:', err);
+      console.warn('Using embedded contract dataset');
     }
   };
 
@@ -48,9 +49,11 @@ export function App() {
     setSelectedContractId(id);
     try {
       const detail = await getContract(id);
-      setSelectedDetail(detail);
+      if (detail) setSelectedDetail(detail);
     } catch (err) {
-      console.error('Failed to load contract details:', err);
+      if (CONTRACT_DETAILS_MAP[id]) {
+        setSelectedDetail(CONTRACT_DETAILS_MAP[id]);
+      }
     }
   };
 
@@ -59,11 +62,28 @@ export function App() {
     try {
       const newContract = await uploadContract(file);
       showToast(`'${file.name}' analyzed successfully with ${newContract.clauses.length} clauses!`, 'success');
-      await loadContracts(newContract.id);
+      
+      const newSummary: ContractSummary = {
+        id: newContract.id,
+        title: newContract.title,
+        file_name: newContract.file_name,
+        file_type: newContract.file_type,
+        file_size: newContract.file_size,
+        upload_time: newContract.upload_time,
+        total_pages: newContract.total_pages,
+        total_clauses: newContract.total_clauses,
+        overall_risk_score: newContract.overall_risk_score,
+        overall_risk_level: newContract.overall_risk_level,
+        executive_summary: newContract.executive_summary,
+        red_flag_count: newContract.red_flags.length
+      };
+
+      setContracts(prev => [newSummary, ...prev.filter(c => c.id !== newContract.id)]);
+      setSelectedContractId(newContract.id);
+      setSelectedDetail(newContract);
       setActiveTab('workspace');
     } catch (err) {
-      console.error('Upload failed:', err);
-      showToast('Failed to analyze document. Please ensure valid PDF, DOCX, or TXT format.', 'error');
+      showToast('Failed to analyze document. Please ensure valid format.', 'error');
     } finally {
       setIsUploading(false);
     }

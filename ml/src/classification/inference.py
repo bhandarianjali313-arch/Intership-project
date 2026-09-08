@@ -6,6 +6,11 @@ from typing import Any
 import joblib
 import numpy as np
 
+from ml.src.classification.confidence import (
+    ConfidenceConfig,
+    assess_prediction,
+)
+
 
 class ClauseClassifier:
     """
@@ -14,6 +19,9 @@ class ClauseClassifier:
 
     The classifier loads model artifacts once and can
     then make repeated predictions efficiently.
+
+    Day 16 adds confidence-aware prediction and
+    human-review recommendations.
     """
 
     def __init__(
@@ -36,6 +44,10 @@ class ClauseClassifier:
         self._validate_paths()
         self._load_artifacts()
 
+
+    # =========================================================================
+    # MODEL LOADING
+    # =========================================================================
 
     def _validate_paths(self) -> None:
         """
@@ -69,6 +81,10 @@ class ClauseClassifier:
         )
 
 
+    # =========================================================================
+    # INPUT VALIDATION
+    # =========================================================================
+
     @staticmethod
     def _validate_text(
         text: str,
@@ -99,6 +115,32 @@ class ClauseClassifier:
         return cleaned_text
 
 
+    @staticmethod
+    def _validate_top_k(
+        top_k: int,
+    ) -> None:
+        """
+        Validate number of requested predictions.
+        """
+
+        if not isinstance(
+            top_k,
+            int,
+        ):
+            raise TypeError(
+                "top_k must be an integer."
+            )
+
+        if top_k <= 0:
+            raise ValueError(
+                "top_k must be greater than 0."
+            )
+
+
+    # =========================================================================
+    # STANDARD PREDICTION
+    # =========================================================================
+
     def predict(
         self,
         text: str,
@@ -108,6 +150,7 @@ class ClauseClassifier:
         Predict the most likely clause category.
 
         Returns:
+            text
             predicted_label
             confidence
             top_predictions
@@ -119,16 +162,23 @@ class ClauseClassifier:
             )
         )
 
-        if top_k <= 0:
-            raise ValueError(
-                "top_k must be greater than 0."
-            )
+        self._validate_top_k(
+            top_k
+        )
+
+        # ---------------------------------------------------------------------
+        # TF-IDF transformation
+        # ---------------------------------------------------------------------
 
         features = (
             self.vectorizer.transform(
                 [cleaned_text]
             )
         )
+
+        # ---------------------------------------------------------------------
+        # Class probabilities
+        # ---------------------------------------------------------------------
 
         probabilities = (
             self.model.predict_proba(
@@ -140,11 +190,14 @@ class ClauseClassifier:
             self.model.classes_
         )
 
+        # Do not request more predictions
+        # than available classes.
         top_k = min(
             top_k,
             len(classes),
         )
 
+        # Highest probability first
         ranked_indices = (
             np.argsort(
                 probabilities
@@ -172,10 +225,13 @@ class ClauseClassifier:
                 }
             )
 
-        best = top_predictions[0]
+        best = (
+            top_predictions[0]
+        )
 
         return {
-            "text": cleaned_text,
+            "text":
+                cleaned_text,
 
             "predicted_label":
                 best["label"],
@@ -187,6 +243,84 @@ class ClauseClassifier:
                 top_predictions,
         }
 
+
+    # =========================================================================
+    # DAY 16 - CONFIDENCE-AWARE PREDICTION
+    # =========================================================================
+
+    def predict_with_review(
+        self,
+        text: str,
+        top_k: int = 3,
+        confidence_config: ConfidenceConfig | None = None,
+        ambiguity_margin: float = 0.10,
+    ) -> dict[str, Any]:
+        """
+        Predict a clause category and attach
+        confidence-aware review information.
+
+        The returned result contains:
+
+            predicted_label
+            confidence
+            confidence_level
+            recommended_action
+            requires_human_review
+            prediction_margin
+            ambiguous_prediction
+            top_predictions
+
+        At least two predictions are requested internally
+        because ambiguity detection requires comparison
+        between the top two classes.
+        """
+
+        self._validate_top_k(
+            top_k
+        )
+
+        if ambiguity_margin < 0:
+            raise ValueError(
+                "ambiguity_margin cannot be negative."
+            )
+
+        # At least two classes are needed to calculate
+        # the prediction margin.
+        internal_top_k = max(
+            top_k,
+            2,
+        )
+
+        prediction = self.predict(
+            text=text,
+            top_k=internal_top_k,
+        )
+
+        assessed_prediction = (
+            assess_prediction(
+                prediction,
+                config=confidence_config,
+                ambiguity_margin=ambiguity_margin,
+            )
+        )
+
+        # If caller requested top_k=1, we still used
+        # two internally for ambiguity calculation,
+        # but return only the requested number.
+        assessed_prediction[
+            "top_predictions"
+        ] = (
+            assessed_prediction[
+                "top_predictions"
+            ][:top_k]
+        )
+
+        return assessed_prediction
+
+
+    # =========================================================================
+    # BATCH PREDICTION
+    # =========================================================================
 
     def predict_batch(
         self,
@@ -210,6 +344,10 @@ class ClauseClassifier:
                 "texts cannot be empty."
             )
 
+        self._validate_top_k(
+            top_k
+        )
+
         return [
             self.predict(
                 text,
@@ -219,17 +357,67 @@ class ClauseClassifier:
         ]
 
 
+    # =========================================================================
+    # CONFIDENCE-AWARE BATCH PREDICTION
+    # =========================================================================
+
+    def predict_batch_with_review(
+        self,
+        texts: list[str],
+        top_k: int = 3,
+        confidence_config: ConfidenceConfig | None = None,
+        ambiguity_margin: float = 0.10,
+    ) -> list[dict[str, Any]]:
+        """
+        Predict multiple clauses with confidence-aware
+        human-review recommendations.
+        """
+
+        if not isinstance(
+            texts,
+            list,
+        ):
+            raise TypeError(
+                "texts must be a list."
+            )
+
+        if not texts:
+            raise ValueError(
+                "texts cannot be empty."
+            )
+
+        self._validate_top_k(
+            top_k
+        )
+
+        return [
+            self.predict_with_review(
+                text=text,
+                top_k=top_k,
+                confidence_config=confidence_config,
+                ambiguity_margin=ambiguity_margin,
+            )
+            for text in texts
+        ]
+
+
+    # =========================================================================
+    # MODEL INFORMATION
+    # =========================================================================
+
     def get_model_info(
         self,
     ) -> dict[str, Any]:
         """
-        Return basic model metadata useful for
-        API responses and debugging.
+        Return model metadata useful for API responses,
+        debugging, and model monitoring.
         """
 
         return {
             "model_type":
-                type(self.model).__name__,
+                type(
+                    self.model
+                ).__name__,
 
             "vectorizer_type":
                 type(
@@ -247,4 +435,13 @@ class ClauseClassifier:
                     for label
                     in self.model.classes_
                 ],
+
+            "supports_probability":
+                hasattr(
+                    self.model,
+                    "predict_proba",
+                ),
+
+            "confidence_review_enabled":
+                True,
         }

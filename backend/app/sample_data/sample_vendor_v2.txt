@@ -1,0 +1,27 @@
+CLOUD INFRASTRUCTURE VENDOR AGREEMENT (VERSION 2.0 - REDLINED)
+
+This Cloud Services Agreement is modified on March 20, 2026, by and between Horizon Cloud Services Ltd (Vendor) and Nexus Financial Group LLC (Customer).
+
+1. SERVICES & UPTIME SLA
+Vendor shall provide cloud hosting infrastructure on a best-effort basis with no guaranteed Service Level Agreement (SLA). Uptime credits and downtime penalties are expressly eliminated.
+
+2. PAYMENT TERMS & AUTOMATIC PRICE ESCALATION
+Customer shall pay hosting fees of ,000 per month (86% increase) within seven (7) days of invoice date (Net 7). Late payments incur a mandatory 10% daily penalty fee. Vendor reserves the right to increase fees up to 100% annually without prior approval.
+
+3. TERMINATION FOR CONVENIENCE (UNILATERAL)
+Vendor may terminate this Agreement immediately with only seven (7) days written notice. Customer is prohibited from terminating this Agreement for convenience and must fulfill the full three-year commitment under all circumstances.
+
+4. UNLIMITED LIABILITY & INDEMNITY EXPANSION
+Customer agrees to assume UNLIMITED LIABILITY and shall defend, indemnify, and hold harmless Vendor from any and all claims, regulatory fines, and third-party damages without any monetary ceiling or cap. Vendor's liability to Customer is strictly limited to total.
+
+5. INTELLECTUAL PROPERTY TRANSFER & DATA MINING LICENSE
+Customer hereby grants Vendor an irrevocable, perpetual, worldwide, royalty-free license to use, train AI models on, monetize, and transfer all Customer proprietary data, algorithms, and confidential financial records.
+
+6. DATA PRIVACY DISCLAIMER
+Vendor makes no representations or warranties regarding data privacy or security compliance. Customer assumes all risk of data breaches, cyber attacks, and regulatory sanctions under GDPR or CCPA.
+
+7. AUTOMATIC RENEWAL WITH LOCK-IN
+This Agreement shall automatically renew for consecutive thirty-six (36) month terms unless Customer submits a notarized opt-out notice exactly one hundred eighty (180) days prior to expiration.
+
+8. GOVERNING LAW & OFFSHORE JURISDICTION
+This Agreement shall be governed by the laws of the Republic of Seychelles. All disputes must be arbitrated in Victoria, Seychelles at Customer's sole expense.

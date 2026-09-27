@@ -1,0 +1,33 @@
+MUTUAL NON-DISCLOSURE AGREEMENT
+
+This Mutual Non-Disclosure Agreement (NDA) is entered into on March 1, 2026 (Effective Date) by and between Apex Cybersecurity Corp., a California corporation (Apex), and Vanguard AI Labs Inc., a Delaware corporation (Vanguard).
+
+1. PURPOSE
+The parties wish to explore a potential business partnership regarding artificial intelligence security auditing (Permitted Purpose).
+
+2. CONFIDENTIAL INFORMATION
+Confidential Information refers to all proprietary data, trade secrets, software algorithms, neural network weights, customer lists, and financial forecasts disclosed by either party.
+
+3. OBLIGATIONS OF RECEIVING PARTY
+The receiving party shall hold the disclosing party's Confidential Information in strict confidence and shall not use it for any purpose other than the Permitted Purpose. The receiving party shall protect the information with the same degree of care it uses for its own sensitive data, but not less than reasonable care.
+
+4. DURATION & SURVIVAL
+The confidentiality obligations under this Agreement shall remain in effect for a period of three (3) years from the date of disclosure. Trade secrets shall remain confidential indefinitely.
+
+5. NON-SOLICITATION & NON-CIRCUMVENTION
+Neither party shall directly or indirectly contact, solicit, or recruit any engineers, researchers, or executive personnel of the other party for a period of twenty-four (24) months following the Effective Date.
+
+6. RETURN OR DESTRUCTION OF MATERIALS
+Upon written request or termination of discussions, the receiving party shall securely delete or destroy all copies of Confidential Information within ten (10) business days and certify such destruction in writing.
+
+7. INJUNCTIVE RELIEF & REMEDIES
+The parties acknowledge that unauthorized disclosure of Confidential Information will cause irreparable harm for which monetary damages alone would be inadequate. Therefore, the disclosing party shall be entitled to seek immediate injunctive relief without posting a bond.
+
+8. GOVERNING LAW AND JURISDICTION
+This Agreement shall be governed by the laws of the State of California. The courts located in San Francisco County, California shall have exclusive jurisdiction over any disputes.
+
+APEX CYBERSECURITY CORP.
+By: Robert Sterling, Chief Legal Officer
+
+VANGUARD AI LABS INC.
+By: Elena Rostova, VP of Business Development

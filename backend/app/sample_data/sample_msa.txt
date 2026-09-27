@@ -1,0 +1,60 @@
+MASTER SERVICES AGREEMENT
+
+This Master Services Agreement (Agreement) is made and entered into as of January 15, 2026 (Effective Date), by and between Acme Enterprise Solutions Inc., a Delaware corporation with its principal office at 500 Market Street, San Francisco, CA 94105 (Client), and Quantum Cloud Dynamics LLC, a New York limited liability company having its place of business at 120 Wall Street, New York, NY 10005 (Service Provider).
+
+RECITALS
+WHEREAS, Client desires to retain Service Provider to perform enterprise software engineering and cloud infrastructure optimization services; and
+WHEREAS, Service Provider agrees to perform such services under the terms and conditions outlined herein.
+
+1. SCOPE OF SERVICES & DELIVERABLES
+Service Provider shall perform the services set forth in one or more Statements of Work (SOW). All deliverables will meet the professional performance standards of the software industry.
+
+2. PAYMENT TERMS & INVOICING
+Client shall pay all undisputed invoices within thirty (30) days of receipt (Net 30). Invoices will detail total consulting hours at the agreed rate of .00 per hour. Late payments shall accrue interest at the lesser of 1.5% per month or the maximum statutory rate allowed by law.
+
+3. TERM AND TERMINATION
+3.1 Term: This Agreement shall commence on the Effective Date and shall continue for a period of twenty-four (24) months, unless earlier terminated in accordance with this Section 3.
+3.2 Termination for Convenience: Either party may terminate this Agreement or any SOW for convenience by providing thirty (30) calendar days prior written notice to the other party.
+3.3 Termination for Cause: Either party may terminate this Agreement immediately upon written notice if the other party breaches any material term and fails to cure such breach within fifteen (15) days of receipt of written notice.
+
+4. CONFIDENTIALITY & PROPRIETARY INFORMATION
+Each party agrees that all business, technical, customer, and financial information disclosed during the term of this Agreement shall remain strictly confidential. The receiving party shall not disclose such information to any third party for a period of five (5) years following termination, except as required by applicable court order.
+
+5. INTELLECTUAL PROPERTY RIGHTS
+Client shall own all right, title, and interest in and to all custom deliverables, source code, and work product developed specifically for Client under this Agreement (Work Made for Hire). Service Provider retains ownership of its pre-existing background intellectual property, frameworks, and reusable code libraries.
+
+6. DATA PROTECTION & PRIVACY COMPLIANCE
+Service Provider shall process Client personal data in strict compliance with the General Data Protection Regulation (GDPR) and California Consumer Privacy Act (CCPA). Service Provider warrants that appropriate technical and administrative safeguards are maintained to prevent unauthorized data access or security breaches.
+
+7. INDEMNIFICATION & DEFENSE
+Service Provider agrees to defend, indemnify, and hold harmless Client, its officers, directors, and employees from and against any third-party claims, damages, liabilities, and expenses arising out of any infringement of third-party intellectual property rights by the deliverables.
+
+8. LIMITATION OF LIABILITY
+EXCEPT FOR WILLFUL MISCONDUCT OR BREACH OF SECTION 4 (CONFIDENTIALITY), NEITHER PARTY SHALL BE LIABLE FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES. EACH PARTY'S TOTAL AGGREGATE LIABILITY UNDER THIS AGREEMENT SHALL BE STRICTLY CAPPED AT THE TOTAL FEES PAID OR PAYABLE BY CLIENT UNDER THE APPLICABLE SOW IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, NOT TO EXCEED ,000.
+
+9. WARRANTIES & DISCLAIMERS
+Service Provider warrants that for a period of ninety (90) days from delivery, all software deliverables will perform in substantial accordance with the specifications. EXCEPT AS EXPRESSLY PROVIDED, ALL SERVICES ARE PROVIDED AS IS.
+
+10. RENEWAL TERMS
+This Agreement shall automatically renew for successive twelve (12) month terms unless either party gives written notice of non-renewal at least sixty (60) days prior to the expiration of the then-current term.
+
+11. NON-COMPETE & NON-SOLICITATION
+During the term of this Agreement and for a period of twelve (12) months thereafter, neither party shall solicit or hire any employee or contractor of the other party directly involved in the provision or receipt of services without prior written consent.
+
+12. FORCE MAJEURE
+Neither party shall be liable for delays or failure in performance resulting from acts beyond its reasonable control, including acts of God, strikes, pandemics, fires, or telecommunication failures.
+
+13. GOVERNING LAW & DISPUTE RESOLUTION
+This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to conflicts of law principles. Any dispute arising under this Agreement shall be resolved through binding arbitration administered by JAMS in Wilmington, Delaware.
+
+14. MISCELLANEOUS & ENTIRE AGREEMENT
+This Agreement constitutes the entire understanding between the parties and supersedes all prior agreements. Amendments must be in writing signed by authorized representatives of both parties.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement by their duly authorized representatives.
+CLIENT: Acme Enterprise Solutions Inc.
+By: Sarah Jenkins, Chief Technology Officer
+Date: January 15, 2026
+
+SERVICE PROVIDER: Quantum Cloud Dynamics LLC
+By: David Vance, Managing Director
+Date: January 15, 2026

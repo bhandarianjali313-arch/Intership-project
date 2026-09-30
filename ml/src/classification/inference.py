@@ -11,7 +11,7 @@ from ml.src.classification.confidence import (
     assess_prediction,
 )
 
-from ml.src.classification.labels import (
+from ml.src.classification.label_mapping import (
     decode_clause_label,
 )
 
@@ -21,12 +21,8 @@ class ClauseClassifier:
     Reusable inference service for the selected
     TF-IDF + Logistic Regression clause classifier.
 
-    The classifier loads model artifacts once and can
-    then make repeated predictions efficiently.
-
-    Predictions are converted from raw model class IDs
-    into canonical CUAD clause labels before being
-    returned to downstream confidence and risk layers.
+    Numeric model class IDs are converted back into
+    semantic CUAD clause labels before being returned.
     """
 
     def __init__(
@@ -113,8 +109,10 @@ class ClauseClassifier:
                 "Clause text must be a string."
             )
 
-        cleaned_text = " ".join(
-            text.split()
+        cleaned_text = (
+            " ".join(
+                text.split()
+            )
         )
 
         if not cleaned_text:
@@ -162,16 +160,8 @@ class ClauseClassifier:
         """
         Predict the most likely clause category.
 
-        Raw model class IDs are converted into
-        canonical legal clause labels before the
-        result is returned.
-
-        Returns:
-
-            text
-            predicted_label
-            confidence
-            top_predictions
+        Both the raw model class and semantic clause
+        label are retained for traceability.
         """
 
         cleaned_text = (
@@ -185,7 +175,7 @@ class ClauseClassifier:
         )
 
         # ---------------------------------------------------------------------
-        # TF-IDF TRANSFORMATION
+        # TF-IDF transformation
         # ---------------------------------------------------------------------
 
         features = (
@@ -195,7 +185,7 @@ class ClauseClassifier:
         )
 
         # ---------------------------------------------------------------------
-        # CLASS PROBABILITIES
+        # Class probabilities
         # ---------------------------------------------------------------------
 
         probabilities = (
@@ -204,41 +194,41 @@ class ClauseClassifier:
             )[0]
         )
 
-        raw_classes = np.asarray(
+        classes = np.asarray(
             self.model.classes_
         )
 
         top_k = min(
             top_k,
-            len(
-                raw_classes
-            ),
+            len(classes),
         )
 
         ranked_indices = (
             np.argsort(
                 probabilities
-            )[::-1][
-                :top_k
-            ]
+            )[::-1][:top_k]
         )
 
         top_predictions = []
 
-        for rank, index in enumerate(
+        for rank, class_index in enumerate(
             ranked_indices,
             start=1,
         ):
 
-            raw_label = (
-                raw_classes[
-                    index
+            raw_class = (
+                classes[
+                    class_index
                 ]
             )
 
-            decoded_label = (
+            raw_label = str(
+                raw_class
+            )
+
+            semantic_label = (
                 decode_clause_label(
-                    raw_label
+                    raw_class
                 )
             )
 
@@ -247,47 +237,37 @@ class ClauseClassifier:
                     "rank":
                         rank,
 
-                    "label":
-                        decoded_label,
-
                     "raw_label":
-                        str(
-                            raw_label
-                        ),
+                        raw_label,
+
+                    "label":
+                        semantic_label,
 
                     "confidence":
                         float(
                             probabilities[
-                                index
+                                class_index
                             ]
                         ),
                 }
             )
 
         best = (
-            top_predictions[
-                0
-            ]
+            top_predictions[0]
         )
 
         return {
             "text":
                 cleaned_text,
 
-            "predicted_label":
-                best[
-                    "label"
-                ],
-
             "raw_predicted_label":
-                best[
-                    "raw_label"
-                ],
+                best["raw_label"],
+
+            "predicted_label":
+                best["label"],
 
             "confidence":
-                best[
-                    "confidence"
-                ],
+                best["confidence"],
 
             "top_predictions":
                 top_predictions,
@@ -302,19 +282,12 @@ class ClauseClassifier:
         self,
         text: str,
         top_k: int = 3,
-        confidence_config: (
-            ConfidenceConfig
-            | None
-        ) = None,
+        confidence_config: ConfidenceConfig | None = None,
         ambiguity_margin: float = 0.10,
     ) -> dict[str, Any]:
         """
         Predict a clause category and attach
-        confidence-aware review information.
-
-        At least two predictions are requested
-        internally because ambiguity detection requires
-        comparison between the two strongest classes.
+        confidence-aware human-review information.
         """
 
         self._validate_top_k(
@@ -332,18 +305,18 @@ class ClauseClassifier:
             2,
         )
 
-        prediction = self.predict(
-            text=text,
-            top_k=internal_top_k,
+        prediction = (
+            self.predict(
+                text=text,
+                top_k=internal_top_k,
+            )
         )
 
         assessed_prediction = (
             assess_prediction(
                 prediction,
                 config=confidence_config,
-                ambiguity_margin=(
-                    ambiguity_margin
-                ),
+                ambiguity_margin=ambiguity_margin,
             )
         )
 
@@ -352,14 +325,10 @@ class ClauseClassifier:
         ] = (
             assessed_prediction[
                 "top_predictions"
-            ][
-                :top_k
-            ]
+            ][:top_k]
         )
 
-        return (
-            assessed_prediction
-        )
+        return assessed_prediction
 
 
     # =========================================================================
@@ -370,9 +339,7 @@ class ClauseClassifier:
         self,
         texts: list[str],
         top_k: int = 3,
-    ) -> list[
-        dict[str, Any]
-    ]:
+    ) -> list[dict[str, Any]]:
         """
         Predict multiple clauses.
         """
@@ -414,14 +381,9 @@ class ClauseClassifier:
         self,
         texts: list[str],
         top_k: int = 3,
-        confidence_config: (
-            ConfidenceConfig
-            | None
-        ) = None,
+        confidence_config: ConfidenceConfig | None = None,
         ambiguity_margin: float = 0.10,
-    ) -> list[
-        dict[str, Any]
-    ]:
+    ) -> list[dict[str, Any]]:
         """
         Predict multiple clauses with confidence-aware
         human-review recommendations.
@@ -450,12 +412,8 @@ class ClauseClassifier:
             self.predict_with_review(
                 text=text,
                 top_k=top_k,
-                confidence_config=(
-                    confidence_config
-                ),
-                ambiguity_margin=(
-                    ambiguity_margin
-                ),
+                confidence_config=confidence_config,
+                ambiguity_margin=ambiguity_margin,
             )
             for text
             in texts
@@ -470,21 +428,17 @@ class ClauseClassifier:
         self,
     ) -> dict[str, Any]:
         """
-        Return useful model metadata.
-
-        Both raw model classes and decoded legal labels
-        are included for transparency.
+        Return model metadata useful for APIs,
+        debugging, traceability, and monitoring.
         """
 
         raw_classes = [
-            str(
-                label
-            )
+            str(label)
             for label
             in self.model.classes_
         ]
 
-        decoded_classes = [
+        semantic_classes = [
             decode_clause_label(
                 label
             )
@@ -505,14 +459,23 @@ class ClauseClassifier:
 
             "number_of_classes":
                 len(
-                    self.model.classes_
+                    raw_classes
                 ),
 
+            # Semantic labels used by downstream
+            # contract intelligence components.
+            "classes":
+                semantic_classes,
+
+            # Raw classes retained for debugging
+            # and model traceability.
             "raw_classes":
                 raw_classes,
 
-            "classes":
-                decoded_classes,
+            # Kept as an alias for compatibility
+            # with other project components.
+            "raw_model_classes":
+                raw_classes,
 
             "supports_probability":
                 hasattr(
@@ -524,5 +487,9 @@ class ClauseClassifier:
                 True,
 
             "label_decoding_enabled":
+                True,
+
+            # Alias retained for compatibility.
+            "semantic_label_decoding":
                 True,
         }
